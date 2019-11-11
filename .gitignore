@@ -15,6 +15,9 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
-
-# Serverless directories
-.serverless
+.env
+__pycache__/
+apicache-py3/
+pywikibot.lwp
+throttle.ctrl
+user-config.py
