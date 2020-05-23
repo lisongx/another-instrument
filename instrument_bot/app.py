@@ -62,7 +62,7 @@ class DataClient(object):
 
 def exit_for_cron_time_checking():
     hour = datetime.now().hour
-    if hour not in [10, 19]:
+    if hour not in [10, 19, 0]:
         return True
 
 
