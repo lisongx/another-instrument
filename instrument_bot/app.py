@@ -2,9 +2,10 @@ import os
 import io
 import requests
 import random
-from config import TWITTER_CONFIG
+import logging
 
 from wiki_service import get_all_items, get_item_data
+from config import TWITTER_CONFIG
 
 import tweepy
 import redis
@@ -70,9 +71,10 @@ def main():
         api.verify_credentials()
         print("Authentication OK")
         print(image_url)
+        status_text = gen_status_from_data(data)
+        print("Ready to send tweet", status_text)
         image_file = io.BytesIO(requests.get(image_url).content)
         media = api.media_upload(filename=filename, file=image_file)
-        status_text = gen_status_from_data(data)
         status = api.update_status(status=status_text, media_ids=[media.media_id])
         print("Sent tweet", status.entities['urls'])
         data_client.add_posted_item_id(data['wd_id'])
@@ -81,4 +83,5 @@ def main():
 
 
 if __name__ == "__main__":
+    logging.basicConfig()
     main()
