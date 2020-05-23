@@ -3,6 +3,7 @@ import io
 import requests
 import random
 import logging
+from datetime import datetime
 
 from wiki_service import get_all_items, get_item_data
 from config import TWITTER_CONFIG
@@ -59,7 +60,17 @@ class DataClient(object):
         return self.rds.sadd(self.key, item_id)
 
 
+def exit_for_cron_time_checking():
+    hour = datetime.now().hour
+    if hour not in [10, 19]:
+        return True
+
+
 def main():
+    if os.environ.get('PRODUCTION') and exit_for_cron_time_checking():
+        print("exit because not the right time")
+        return
+
     data_client = DataClient()
     all_posted = data_client.get_all_posted_item_ids()
     api = get_tweet_client()
