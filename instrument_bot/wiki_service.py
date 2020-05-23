@@ -47,6 +47,21 @@ COMMONS_NAMESPACE_IMAGE = 6
 
 commons = mwclient.Site(COMMONS_LINK)
 
+
+def shortern_url(url):
+    r = requests.post(
+        "https://meta.wikimedia.org/w/api.php",
+        data = {
+            'action':  'shortenurl',
+            'url': url,
+            'format': 'json'
+        }
+    )
+    assert r.status_code == 200, "URL shortern failed!"
+    data = r.json()
+    return data['shortenurl']['shorturl']
+
+
 def get_images_from_commons_category(category_name):
     category = commons.categories[category_name]
     images =  list(category.members(namespacce=COMMONS_NAMESPACE_IMAGE))
@@ -127,6 +142,6 @@ def get_item_data(wd_item):
         title=title,
         image_url=image['url'],
         image_description=get_image_description_text(image),
-        image_source_url=image['descriptionurl']
+        image_source_url=shortern_url(image['descriptionurl'])
     )
     return data
