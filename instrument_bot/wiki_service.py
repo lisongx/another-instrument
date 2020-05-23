@@ -91,11 +91,13 @@ def get_image_by_item(item):
         common_category = common_categories[0]
         return get_images_from_commons_category(common_category)
 
+
 def get_item_title(item):
     if item.get('itemLabel'):
         return item['itemLabel']['value']
     elif item.get('langLabels'):
         return item['itemLabel']['value'].split(',')[0]
+
 
 def get_commons_author_name(dom_string):
     dom = parseDomString(dom_string)
@@ -106,7 +108,7 @@ def get_image_description_text(image):
     metadata = image['metadata']
     if metadata['Copyrighted']['value'] == 'True':
         license_name = metadata['LicenseShortName']['value']
-        artist = get_commons_author_name(image['metadata']['Artist'].value)
+        artist = get_commons_author_name(image['metadata']['Artist']['value'])
         return "Photo by %s, %s" % (artist, license_name)
 
 
