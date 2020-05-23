@@ -122,7 +122,11 @@ def get_image_description_text(image):
     metadata = image['metadata']
     if metadata['Copyrighted']['value'] == 'True':
         license_name = metadata['LicenseShortName']['value']
-        artist = get_commons_author_name(image['metadata']['Artist']['value'])
+        try:
+            artist = get_commons_author_name(image['metadata']['Artist']['value'])
+        except KeyError:
+            print("Could not find the artist name!", image['metadata'])
+            return None
         return "Photo by %s, %s" % (artist, license_name)
 
 
