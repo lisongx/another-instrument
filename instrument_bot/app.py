@@ -73,6 +73,7 @@ def main():
         print(image_url)
         status_text = gen_status_from_data(data)
         print("Ready to send tweet", status_text)
+        return
         image_file = io.BytesIO(requests.get(image_url).content)
         media = api.media_upload(filename=filename, file=image_file)
         status = api.update_status(status=status_text, media_ids=[media.media_id])

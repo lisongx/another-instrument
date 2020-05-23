@@ -57,6 +57,7 @@ def shortern_url(url):
     )
     assert r.status_code == 200, "URL shortern failed!"
     data = r.json()
+    print("Shorten url response", data)
     return data['shortenurl']['shorturl']
 
 
@@ -137,7 +138,7 @@ def get_item_data(wd_item):
 
     data = dict(
         wd_id=wd_id,
-        title=title,
+        title=title.capitalize(),
         image_url=image['url'],
         image_description=get_image_description_text(image),
         image_source_url=shortern_url(image['descriptionurl'])
