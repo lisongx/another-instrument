@@ -141,6 +141,6 @@ def get_item_data(wd_item):
         title=title.capitalize(),
         image_url=image['url'],
         image_description=get_image_description_text(image),
-        image_source_url=shortern_url(image['descriptionurl'])
+        image_source_url=image['descriptionurl']
     )
     return data
