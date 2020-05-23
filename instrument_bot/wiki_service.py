@@ -104,7 +104,7 @@ def get_commons_author_name(dom_string):
 
 def get_image_description_text(image):
     metadata = image['metadata']
-    if metadata['Copyrighted'] is True:
+    if metadata['Copyrighted']['value'] is True:
         license_name = metadata['LicenseShortName']['value']
         artist = get_commons_author_name(image['metadata']['Artist'].value)
         return "Photo by %s, %s" % (artist, license_name)
