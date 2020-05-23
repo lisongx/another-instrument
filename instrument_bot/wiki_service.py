@@ -121,6 +121,7 @@ def get_item_data(wd_item):
         return
 
     data = dict(
+        wd_id=wd_id,
         title=title,
         image_url=image['url'],
         image_description=get_image_description_text(image),

@@ -1,13 +1,16 @@
 import os
+import io
 import requests
 import random
-import io
 from config import TWITTER_CONFIG
 
 from wiki_service import get_all_items, get_item_data
 
 import tweepy
+import redis
+from retry import retry
 
+ITEMS_KEY = 'items'
 
 def get_tweet_client():
     auth = tweepy.OAuthHandler(
@@ -20,14 +23,20 @@ def get_tweet_client():
     return api
 
 
+@retry(tries=5, delay=10)
 def get_random_data(items):
     wd_item = random.sample(items, 1)[0]
-    return get_item_data(wd_item)
+    ret = get_item_data(wd_item)
+    if not ret:
+        raise Exception("invalid item")
+    return ret
 
-
-def get_tweet_data():
+def get_tweet_data(all_posted):
     items = get_all_items()
-    return get_random_data(items)
+    print("Got Items, %s" % len(items))
+    filterd_items = [item for item in items if item['id'] not in all_posted]
+    print("After filter posted Items, %s" % len(filterd_items))
+    return get_random_data(filterd_items)
 
 
 def gen_status_from_data(data):
@@ -37,9 +46,23 @@ def gen_status_from_data(data):
     return "%s %s" % (data['title'], data['image_source_url'])
 
 
-if __name__ == "__main__":
+class DataClient(object):
+    def __init__(self):
+        self.rds = redis.from_url(os.environ.get("REDISTOGO_URL"))
+        self.key = ITEMS_KEY
+
+    def get_all_posted_item_ids(self):
+        return [item.decode('utf-8') for item in self.rds.smembers(self.key)]
+
+    def add_posted_item_id(self, item_id):
+        return self.rds.sadd(self.key, item_id)
+
+
+def main():
+    data_client = DataClient()
+    all_posted = data_client.get_all_posted_item_ids()
     api = get_tweet_client()
-    data = get_tweet_data()
+    data = get_tweet_data(all_posted)
     image_url = data['image_url']
     _, filename = os.path.split(image_url)
 
@@ -49,12 +72,13 @@ if __name__ == "__main__":
         print(image_url)
         image_file = io.BytesIO(requests.get(image_url).content)
         media = api.media_upload(filename=filename, file=image_file)
-        status = gen_status_from_data(data)
-        api.update_status(status=status, media_ids=[media.media_id])
-        import ipdb;
-        ipdb.set_trace()
+        status_text = gen_status_from_data(data)
+        status = api.update_status(status=status_text, media_ids=[media.media_id])
+        print("Sent tweet", status.entities['urls'])
+        data_client.add_posted_item_id(data['wd_id'])
     except Exception as e:
-        print(e)
-        print("Error during authentication")
+        print("Send Error", e)
 
 
+if __name__ == "__main__":
+    main()
