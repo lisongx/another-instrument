@@ -41,8 +41,6 @@ SPARQL_QUERY = """
 
 WIKIDATA_SPARQL = "https://query.wikidata.org/bigdata/namespace/wdq/sparql"
 
-DEFAULT_LANG = "en"
-WD_PROPERTY_COUNTRY = "P495"
 COMMONS_NAMESPACE_IMAGE = 6
 
 commons = mwclient.Site(COMMONS_LINK)
@@ -64,7 +62,7 @@ def shortern_url(url):
 
 def get_images_from_commons_category(category_name):
     category = commons.categories[category_name]
-    images =  list(category.members(namespacce=COMMONS_NAMESPACE_IMAGE))
+    images =  list(category.members(namespace=COMMONS_NAMESPACE_IMAGE))
     # Get First one
     if len(images) > 0:
         image = images[0]
