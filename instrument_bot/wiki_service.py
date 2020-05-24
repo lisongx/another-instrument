@@ -136,7 +136,9 @@ def get_image_description_text(image):
         except KeyError:
             print("Could not find the artist name!", image['metadata'])
             return None
-        return "Photo by %s, %s" % (artist, license_name)
+
+        if artist:
+            return "Photo by %s, %s" % (artist, license_name)
 
 
 def get_site_link_by_entity_data(data):
