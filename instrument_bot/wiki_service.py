@@ -128,6 +128,9 @@ def get_image_description_text(image):
     metadata = image['metadata']
     if metadata['Copyrighted']['value'] == 'True':
         license_name = metadata['LicenseShortName']['value']
+        if license_name == "CC0":
+            return
+
         try:
             artist = get_commons_author_name(image['metadata']['Artist']['value'])
         except KeyError:
