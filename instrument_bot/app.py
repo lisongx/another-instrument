@@ -43,9 +43,9 @@ def get_tweet_data(all_posted):
 
 def gen_status_from_data(data):
     if data['image_description']:
-        return "%s (%s) %s" % (data['title'], data['image_description'], data['image_source_url'])
+        return "%s (%s) %s" % (data['title'], data['image_description'], data['site_link'])
 
-    return "%s %s" % (data['title'], data['image_source_url'])
+    return "%s %s" % (data['title'], data['site_link'])
 
 
 class DataClient(object):
@@ -62,7 +62,7 @@ class DataClient(object):
 
 def exit_for_cron_time_checking():
     hour = datetime.now().hour
-    if hour not in [10, 19, 0]:
+    if hour not in [8, 13, 20, 0]:
         return True
 
 
@@ -89,6 +89,11 @@ def main():
         status = api.update_status(status=status_text, media_ids=[media.media_id])
         print("Sent tweet", status.entities['urls'])
         data_client.add_posted_item_id(data['wd_id'])
+        api.update_status(
+            status = 'Image source: %s' % data['image_source_url'],
+            in_reply_to_status_id=status.id,
+            auto_populate_reply_metadata=True
+        )
     except Exception as e:
         print("Send Error", e)
 

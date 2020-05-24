@@ -46,6 +46,12 @@ COMMONS_NAMESPACE_IMAGE = 6
 commons = mwclient.Site(COMMONS_LINK)
 
 
+def get_entity_data(wd_id):
+    r = requests.get('https://www.wikidata.org/wiki/Special:EntityData/%s.json' % wd_id)
+    data = r.json()
+    return data['entities'].get(wd_id)
+
+
 def shortern_url(url):
     r = requests.post(
         "https://meta.wikimedia.org/w/api.php",
@@ -130,6 +136,15 @@ def get_image_description_text(image):
         return "Photo by %s, %s" % (artist, license_name)
 
 
+def get_site_link_by_entity_data(data):
+    sitelinks = data['sitelinks']
+    if len(sitelinks) == 0:
+        return
+
+    if 'enwiki' in sitelinks:
+        return sitelinks['enwiki']['url']
+    return sitelinks.values()[0]['url']
+
 def get_item_data(wd_item):
     title = get_item_title(wd_item)
     if not title:
@@ -140,9 +155,15 @@ def get_item_data(wd_item):
     if not image:
         return
 
+    entity_data = get_entity_data(wd_id)
+    site_link = get_site_link_by_entity_data(entity_data)
+    if not site_link:
+        return
+
     data = dict(
         wd_id=wd_id,
         title=title.capitalize(),
+        site_link=site_link,
         image_url=image['url'],
         image_description=get_image_description_text(image),
         image_source_url=image['descriptionurl']
